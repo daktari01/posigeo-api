@@ -2,23 +2,44 @@ class Api::V1::GeolocationsController < ApplicationController
   before_action :set_geo, only: [ :show, :destroy ]
 
   def show
-    geo = @geo || GeolocationService.new.lookup(params[:id])
+    ip_or_url = params[:id]
 
-    if geo.is_a?(Geolocation)
+    if ip_or_url.blank?
+      return render json: { errors: [{ detail: "IP or URL is required" }] },
+                    status: :unprocessable_entity
+    end
+
+    geo = Geolocation.find_by(ip_address: ip_or_url)
+
+    unless geo
+      service = GeolocationService.new
+      geo = service.lookup(ip_or_url)
+    end
+
+    if geo.is_a?(Geolocation) && geo.persisted?
       render json: GeolocationSerializer.new(geo).serializable_hash, status: :ok
     else
-      render json: { errors: [ { detail: geo[:error] } ] }, status: :unprocessable_entity
+      error_message = geo[:error] || "Failed to fetch geolocation"
+      render json: { errors: [{ detail: error_message }] }, status: :unprocessable_entity
     end
   end
 
   def create
-    service = GeolocationService.new
-    geo = service.lookup(params[:id] || params[:url])
+    ip_or_url = params[:ip] || params[:url]
 
-    if geo.persisted?
-      render json: GeolocationSerializer.new(geo).serializable_hash, status: :created
+    if ip_or_url.blank?
+      return render json: { errors: [ { detail: "IP or URL is required" } ] },
+                    status: :unprocessable_entity
+    end
+
+    service = GeolocationService.new
+    result = service.lookup(ip_or_url)
+
+    if result.is_a?(Geolocation) && result.persisted?
+      render json: GeolocationSerializer.new(result).serializable_hash, status: :created
     else
-      render json: { errors: geo.errors }, status: :unprocessable_entity
+      error_message = result[:error] || "Failed to fetch geolocation"
+      render json: { errors: [ { detail: error_message } ] }, status: :unprocessable_entity
     end
   end
 
@@ -36,4 +57,15 @@ class Api::V1::GeolocationsController < ApplicationController
     @geo = Geolocation.find_by(ip_address: params[:id])
   end
 
+  def geolocation_params
+    params.require(:geolocation).permit(
+      :ip_address,
+      :latitude,
+      :longitude,
+      :url,
+      :country,
+      :country_code,
+      :city
+    )
+  end
 end

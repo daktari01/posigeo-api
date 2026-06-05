@@ -24,6 +24,7 @@ module GeolocationProviders
 
     def resolve_to_ip(address)
       return address if valid_ip?(address)
+
       Resolv.getaddress(address) rescue nil
     end
 
