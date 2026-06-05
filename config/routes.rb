@@ -7,4 +7,9 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+  namespace :api do
+    namespace :v1 do
+      resources :geolocations, only: [:show, :create, :destroy], param: :id
+    end
+  end
 end
