@@ -6,7 +6,7 @@ class Api::V1::GeolocationsController < ApplicationController
 
     if ip_or_url.blank?
       return render json: {
-        errors: [{ detail: "IP or URL is required (use ?ip= or ?url=)" }]
+        errors: [ { detail: "IP or URL is required (use ?ip= or ?url=)" } ]
       }, status: :unprocessable_entity
     end
 
@@ -21,7 +21,7 @@ class Api::V1::GeolocationsController < ApplicationController
              status: :ok
     else
       render json: {
-        errors: [{ detail: geo[:error] || "Failed to fetch geolocation" }]
+        errors: [ { detail: geo[:error] || "Failed to fetch geolocation" } ]
       }, status: :unprocessable_entity
     end
   end
