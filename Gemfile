@@ -13,6 +13,7 @@ gem "puma", ">= 5.0"
 gem "httparty", "~> 0.24.2"
 gem "jsonapi-serializer", "2.2.0"
 gem "jwt", "~> 3.2.0"
+gem "dotenv-rails", "~> 3.2.0"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
@@ -50,9 +51,8 @@ group :development, :test do
   gem "rspec-rails", "~> 8.0.4"
   gem "factory_bot_rails", "~> 6.5.1"
   gem "shoulda-matchers", "~> 7.0.1"
+  gem "pry-rails", "~> 0.3.4"
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 end
-
-
