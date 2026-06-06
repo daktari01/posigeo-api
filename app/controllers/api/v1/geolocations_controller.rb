@@ -56,7 +56,7 @@ class Api::V1::GeolocationsController < ApplicationController
   private
 
   def set_geo
-    @geo = Geolocation.find_by(ip_address: params[:id])
+    @geo = Geolocation.find(params[:id])
   end
 
   def geolocation_params
