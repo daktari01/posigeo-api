@@ -1,26 +1,28 @@
 class Api::V1::GeolocationsController < ApplicationController
-  before_action :set_geo, only: [ :show, :destroy ]
+  before_action :set_geo, only: [ :destroy ]
 
-  def show
-    ip_or_url = params[:id]
+  def lookup
+    ip_or_url = params[:ip] || params[:url]
 
     if ip_or_url.blank?
-      return render json: { errors: [{ detail: "IP or URL is required" }] },
-                    status: :unprocessable_entity
+      return render json: {
+        errors: [{ detail: "IP or URL is required (use ?ip= or ?url=)" }]
+      }, status: :unprocessable_entity
     end
 
     geo = Geolocation.find_by(ip_address: ip_or_url)
 
     unless geo
-      service = GeolocationService.new
-      geo = service.lookup(ip_or_url)
+      geo = GeolocationService.new.lookup(ip_or_url)
     end
 
     if geo.is_a?(Geolocation) && geo.persisted?
-      render json: GeolocationSerializer.new(geo).serializable_hash, status: :ok
+      render json: GeolocationSerializer.new(geo).serializable_hash,
+             status: :ok
     else
-      error_message = geo[:error] || "Failed to fetch geolocation"
-      render json: { errors: [{ detail: error_message }] }, status: :unprocessable_entity
+      render json: {
+        errors: [{ detail: geo[:error] || "Failed to fetch geolocation" }]
+      }, status: :unprocessable_entity
     end
   end
 

@@ -9,7 +9,11 @@ Rails.application.routes.draw do
   # root "posts#index"
   namespace :api do
     namespace :v1 do
-      resources :geolocations, only: [:show, :create, :destroy], param: :id
+      resources :geolocations, only: [:create, :destroy] do
+        collection do
+          get :lookup
+        end
+      end
     end
   end
 end
