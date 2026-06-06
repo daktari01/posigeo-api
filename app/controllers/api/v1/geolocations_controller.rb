@@ -1,4 +1,7 @@
 class Api::V1::GeolocationsController < ApplicationController
+  include Authenticable
+
+  before_action :authenticate!, only: [ :create, :destroy ]
   before_action :set_geo, only: [ :destroy ]
 
   def lookup
@@ -57,6 +60,7 @@ class Api::V1::GeolocationsController < ApplicationController
 
   def set_geo
     @geo = Geolocation.find(params[:id])
+    render json: {errors: [{detail: "Not found"}]}, status: :not_found unless @geo
   end
 
   def geolocation_params
