@@ -1,7 +1,7 @@
 module Authenticable
   def authenticate!
     header = request.headers["Authorization"]
-    token = header.split(" ")&.last
+    token = header&.split(" ")&.last
 
     if token.blank?
       return render json: { error: [{ detail: "Auth token is needed" }] }, status: :unauthorized
