@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: posigeo_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: posigeo_api_development
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: posigeo_api
+    command: bash -c "rm -f tmp/pids/server.pid && rails db:create db:migrate && rails s -b 0.0.0.0"
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+          condition: service_healthy
+    environment:
+      - RAILS_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/posigeo_api_development
+      - IPSTACK_API_KEY=${IPSTACK_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - .:/app
+      - bundle:/usr/local/bundle
+
+volumes:
+  postgres_data:
+  bundle:
+
