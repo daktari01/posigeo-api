@@ -64,7 +64,7 @@ ___
 ## Docker Setup
 1. Pull the docker image
 ```
-docker pull daktari/posigeo-api
+docker pull daktari01/posigeo-api:latest
 ```
 
 2. Run the container
@@ -111,7 +111,7 @@ DELETE http://localhost:3000/api/v1/geolocations/1
 
 ## Run tests
 ```
-rails test
+rspec
 ```
 
 ## License
