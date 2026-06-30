@@ -6,7 +6,6 @@ A RESTful Ruby on Rails API that provides geolocation data based on IP address o
 
 - Lookup geolocation by IP or URL (public endpoint)
 - Create/refresh and delete geolocation records (protected)
-- Modular geolocation provider architecture
 - JWT Authentication
 
 ## Tech Stack

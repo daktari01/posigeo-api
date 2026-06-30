@@ -69,39 +69,61 @@ RSpec.describe "Api::V1::Geolocations", type: :request do
             city: "Mombasa")
     end
 
+    let(:auth_headers) do
+      token = JWT.encode({ user_id: 1, exp: 24.hours.from_now.to_i }, ENV["JWT_SECRET"], "HS256")
+      { "Authorization" => "Bearer #{token}" }
+    end
+
     before do
       allow_any_instance_of(GeolocationService).to receive(:lookup).and_return(geolocation)
     end
 
     it "creates and returns geolocation with status 201" do
-      post "/api/v1/geolocations", params: { ip: valid_ip }
+      post "/api/v1/geolocations", params: { ip: valid_ip }, headers: auth_headers
 
       expect(response).to have_http_status(:created)
       expect(json_response['data']['attributes']['ip_address']).to eq(valid_ip)
     end
 
     it "returns error when ip/url is missing" do
-      post "/api/v1/geolocations"
+      post "/api/v1/geolocations", headers: auth_headers
 
       expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "returns unauthorized when no auth token is provided" do
+      post "/api/v1/geolocations", params: { ip: valid_ip }
+
+      expect(response).to have_http_status(:unauthorized)
     end
   end
 
   describe "DELETE /api/v1/geolocations/:id" do
     let!(:geolocation) { create(:geolocation, ip_address: valid_ip) }
 
+    let(:auth_headers) do
+      token = JWT.encode({ user_id: 1, exp: 24.hours.from_now.to_i }, ENV["JWT_SECRET"], "HS256")
+      { "Authorization" => "Bearer #{token}" }
+    end
+
     it "deletes the geolocation" do
       expect {
-        delete "/api/v1/geolocations/#{geolocation.id}"
+        delete "/api/v1/geolocations/#{geolocation.id}", headers: auth_headers
       }.to change(Geolocation, :count).by(-1)
 
       expect(response).to have_http_status(:no_content)
     end
 
     it "returns not found when geolocation doesn't exist" do
-      delete "/api/v1/geolocations/999999"
+      delete "/api/v1/geolocations/1001", headers: auth_headers
 
       expect(response).to have_http_status(:not_found)
+    end
+
+    it "returns unauthorized when no auth token is provided" do
+      delete "/api/v1/geolocations/#{geolocation.id}"
+
+      expect(response).to have_http_status(:unauthorized)
     end
   end
 
